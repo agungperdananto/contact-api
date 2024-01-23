@@ -10,11 +10,14 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.contact.contact.entity.User;
 import com.github.contact.contact.model.RegisterUserRequest;
 import com.github.contact.contact.model.WebResponse;
 import com.github.contact.contact.repository.UserRepository;
+import com.github.contact.contact.security.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -60,6 +63,60 @@ public class UserControllerTest {
                 WebResponse<String> response =  objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>(){});
 
                 assertEquals("OK", response.getData());
+            });
+
+    }
+
+    @Test
+    void testRegisterDuplicate() throws Exception{
+        User user = new User();
+
+        user.setUsername("root");
+        user.setPassword(BCrypt.hashpw("123", BCrypt.gensalt()));
+        user.setName("root user");
+
+        userRepository.save(user);
+
+        RegisterUserRequest request = new RegisterUserRequest();
+        request.setUsername("root");
+        request.setPassword("123");
+        request.setName("root user");
+
+        mockMvc.perform(
+            post("/api/users")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON) )
+                        .content(Objects.requireNonNull(objectMapper.writeValueAsString(request)))
+        ).andExpectAll(
+            status().isBadRequest()
+        ).andDo(
+            result->{
+                WebResponse<String> response =  objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>(){});
+
+                assertNotNull(response.getErrors());
+            });
+
+    }
+
+    @Test
+    void testRegisterFailed() throws Exception{
+        RegisterUserRequest request = new RegisterUserRequest();
+        request.setUsername("");
+        request.setPassword("");
+        request.setName("");
+
+        mockMvc.perform(
+            post("/api/users")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON) )
+                        .content(Objects.requireNonNull(objectMapper.writeValueAsString(request)))
+        ).andExpectAll(
+            status().isBadRequest()
+        ).andDo(
+            result->{
+                WebResponse<String> response =  objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>(){});
+
+                assertNotNull(response.getErrors());
             });
 
     }
