@@ -2,7 +2,7 @@
 
 ## Register user
 
-endpoint[POST] `/api/users`
+endpoint [POST] `/api/users`
 Request body:
 ```json
     {
@@ -28,7 +28,7 @@ response body (failed):
 ```
 
 ## Login 
-endpoint[POST] `/api/auth/login`
+endpoint [POST] `/api/auth/login`
 Request body:
 ```json
     {
@@ -56,7 +56,7 @@ response body (failed):
 ```
 ## Get user
 
-endpoint[GET] `/api/users/profile`
+endpoint [GET] `/api/users/profile`
 request header:
     - X-API-TOKEN: <Token>
 
@@ -77,7 +77,7 @@ response body (failed):
 
 
 ## Update user
-endpoint[PATCH] `/api/users/profile`
+endpoint [PATCH] `/api/users/profile`
 
 request header:
     - X-API-TOKEN: <Token>
@@ -109,7 +109,7 @@ response body (failed):
 
 ## Logout
 
-endpoint[DELETE] `/api/auth/logout`
+endpoint [DELETE] `/api/auth/logout`
 
 request header:
     - X-API-TOKEN: <Token>
