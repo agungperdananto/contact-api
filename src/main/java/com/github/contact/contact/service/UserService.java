@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.github.contact.contact.entity.User;
 import com.github.contact.contact.model.RegisterUserRequest;
+import com.github.contact.contact.model.UserResponse;
 import com.github.contact.contact.repository.UserRepository;
 import com.github.contact.contact.security.BCrypt;
 
@@ -43,5 +44,12 @@ public class UserService {
         userRepository.save(user);
 
     }
+
+    public UserResponse get(User user){
+        return UserResponse.builder()
+            .username(user.getUsername())
+            .name(user.getName())
+            .build();
+    }   
 
 }

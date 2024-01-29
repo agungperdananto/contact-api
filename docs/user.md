@@ -56,7 +56,7 @@ response body (failed):
 ```
 ## Get user
 
-endpoint [GET] `/api/users/profile`
+endpoint [GET] `/api/users/current`
 request header:
     - X-API-TOKEN: <Token>
 
@@ -77,7 +77,7 @@ response body (failed):
 
 
 ## Update user
-endpoint [PATCH] `/api/users/profile`
+endpoint [PATCH] `/api/users/current`
 
 request header:
     - X-API-TOKEN: <Token>
