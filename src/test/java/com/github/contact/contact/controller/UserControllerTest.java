@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.contact.contact.entity.User;
 import com.github.contact.contact.model.RegisterUserRequest;
+import com.github.contact.contact.model.UpdateUserRequest;
 import com.github.contact.contact.model.UserResponse;
 import com.github.contact.contact.model.WebResponse;
 import com.github.contact.contact.repository.UserRepository;
@@ -205,6 +206,63 @@ public class UserControllerTest {
                 assertNull(response.getErrors());
                 assertEquals("root", response.getData().getUsername());
                 assertEquals("root user", response.getData().getName());
+        });
+    }
+
+    @Test
+    void updateUserUnautorized() throws Exception{
+
+        UpdateUserRequest request = new UpdateUserRequest();
+
+
+        mockMvc.perform(
+            patch("/api/users/current")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(request)))
+                .header("X-API-TOKEN", "notfound")
+        ).andExpectAll(
+            status().isUnauthorized()
+        ).andDo(
+            result->{
+                WebResponse<String> response =  objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>(){});
+
+                assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void updateUserSuccess() throws Exception{
+        User user = new User();
+
+        user.setUsername("admin");
+        user.setPassword(BCrypt.hashpw("123", BCrypt.gensalt()));
+        user.setToken("x-123456");
+        user.setName("root user");
+        user.setTokenExpiredAt(System.currentTimeMillis() + 100000L);
+        userRepository.save(user);
+
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setName("New");
+        request.setPassword("45678");
+
+        mockMvc.perform(
+            patch("/api/users/current")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(request)))
+                .header("X-API-TOKEN", "x-123456")
+        ).andExpectAll(
+            status().isOk()
+        ).andDo(
+            result->{
+                WebResponse<UserResponse> response =  objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>(){});
+
+                assertNull(response.getErrors());
+
+                assertEquals("New", response.getData().getName());
+                assertEquals("admin", response.getData().getUsername());
+
         });
     }
 }
