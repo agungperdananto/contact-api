@@ -1,5 +1,7 @@
 package com.github.contact.contact.resolver;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
@@ -23,14 +25,16 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver{
     private UserRepository userRepository;
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(@Nullable MethodParameter parameter) {
+        Objects.requireNonNull(parameter);
         return User.class.equals(parameter.getParameterType());
     }
 
     @Override
     @Nullable
-    public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
-            NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(@Nullable MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+            @Nullable NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+                Objects.requireNonNull(webRequest);
         HttpServletRequest servletRequest = (HttpServletRequest) webRequest.getNativeRequest();
 
         String token = servletRequest.getHeader("X-API-TOKEN");
