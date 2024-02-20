@@ -179,6 +179,15 @@ public class AuthControllerTest {
                 WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
                 });
                 assertNull(response.getErrors());
+
+                assertEquals("OK", response.getData());
+
+                User userObj = userRepository.findById("admin").orElse(null);
+
+                assertNotNull(userObj);
+                assertNull(userObj.getToken());
+                assertNull(userObj.getTokenExpiredAt());
+
             }
         );
     }
