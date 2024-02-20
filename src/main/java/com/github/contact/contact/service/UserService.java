@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.github.contact.contact.entity.User;
 import com.github.contact.contact.model.RegisterUserRequest;
+import com.github.contact.contact.model.UpdateUserRequest;
 import com.github.contact.contact.model.UserResponse;
 import com.github.contact.contact.repository.UserRepository;
 import com.github.contact.contact.security.BCrypt;
@@ -51,5 +52,27 @@ public class UserService {
             .name(user.getName())
             .build();
     }   
+
+    @Transactional
+    public UserResponse update(User user, UpdateUserRequest request){
+
+        validationService.validate(request);
+        
+        if(Objects.nonNull(request.getName())){
+            user.setName(request.getName());
+        }
+
+        if(Objects.nonNull(request.getPassword())){
+            user.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
+        }
+
+        Objects.requireNonNull(user);
+        userRepository.save(user);
+
+        return UserResponse.builder()
+                .name(user.getName())
+                .username(user.getUsername())
+                .build();
+    }
 
 }
